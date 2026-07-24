@@ -115,17 +115,20 @@ const JOKES = {
                n<1500?"Tu as un problème. Un vrai. Et Claude n'est pas médecin.":
                n<3000?"Tu ne codes plus, tu délègues ta vie. Et tu relis même pas.":
                       "À ce stade, Claude mérite un salaire, des congés, et une part de ton diplôme.",
-    tokens:n=> n>=1e9?"De quoi réécrire la bibliothèque d'Alexandrie. Tu as fait un CRUD.":
-               n>=1e8?"Des millions de tokens plus tard : le bug est toujours là.":
-                      "Économe. Ou alors tu lis vraiment les réponses ?",
-    tool:t=>({Bash:"rm -rf en confiance aveugle. Un jour, ça piquera.",
-              Edit:"Tu fais écrire Claude et tu signes. Malin, le manager.",
-              Write:"Tu fais écrire Claude et tu signes. Malin, le manager.",
-              Read:"Tu fais surtout lire Claude. Toi, tu supervises depuis le canapé."}[t]
-             || (t+" à toutes les sauces. Ta signature reconnaissable.")),
-    rhythm:(np,ph)=> np>=35?"3h du mat, toi et Claude, seuls contre le linter.":
-                     ph<=9?"Lève-tôt. Tes prompts sentent encore le café.":
-                           "Productif en journée. Un vrai adulte, presque.",
+    tokens:n=> n>=1e9?"De quoi réécrire la bibliothèque d'Alexandrie. Toi, t'as pondu un CRUD.":
+               n>=1e8?"Des millions de tokens, et le bug est toujours là. Bravo l'équipe.":
+                      "Radin en tokens. Ou alors t'abandonnes au premier « Réfléchissons ».",
+    tool:t=>({Bash:"rm -rf en confiance aveugle. Ton /home vit dangereusement.",
+              Edit:"Claude écrit, tu signes. Le CDI le plus tranquille de l'open space.",
+              Write:"Claude écrit, tu signes. Le CDI le plus tranquille de l'open space.",
+              Read:"Tu fais lire Claude et tu hoches la tête. Manager né."}[t]
+             || (t+" non-stop. Ta seule vraie constance.")),
+    rhythm:(np,ph)=> np>=35?"3h du mat, toi et Claude, seuls contre le linter et le bon sens.":
+                     ph<=9?"Lève-tôt. Tes prompts sentent le café et le désespoir matinal.":
+                           "Actif en journée. Le strict minimum pour faire semblant.",
+    model:m=> (m||"Ton modèle")+", ton bras droit. Et ton bras gauche. Et ton cerveau.",
+    projects:"Autant de projets ouverts. Combien finis ? On ne posera pas la question.",
+    recap:"Ton année Claude, résumée. Ne montre pas ça à un recruteur.",
   },
   en:{
     prompts:n=> n<100?"Claude barely noticed you.":
@@ -133,17 +136,20 @@ const JOKES = {
                n<1500?"You have a problem. A real one. Claude isn't a doctor.":
                n<3000?"You don't code anymore, you delegate your life. And you don't even read it.":
                       "At this point, Claude deserves a salary, PTO, and a cut of your degree.",
-    tokens:n=> n>=1e9?"Enough tokens to rewrite the Library of Alexandria. You built a CRUD.":
-               n>=1e8?"Millions of tokens later: the bug is still there.":
-                      "Frugal. Or do you actually read the answers?",
-    tool:t=>({Bash:"rm -rf on blind faith. It'll sting someday.",
-              Edit:"You make Claude write and you sign it. Smart move, manager.",
-              Write:"You make Claude write and you sign it. Smart move, manager.",
-              Read:"You mostly make Claude read. You supervise from the couch."}[t]
-             || (t+" everywhere. Your unmistakable signature.")),
-    rhythm:(np,ph)=> np>=35?"3am, you and Claude, alone against the linter.":
-                     ph<=9?"Early bird. Your prompts still smell of coffee.":
-                           "Productive by day. Almost a real adult.",
+    tokens:n=> n>=1e9?"Enough tokens to rewrite the Library of Alexandria. You shipped a CRUD.":
+               n>=1e8?"Millions of tokens, and the bug is still there. Great teamwork.":
+                      "Stingy with tokens. Or you bail at the first 'Let's think'.",
+    tool:t=>({Bash:"rm -rf on blind faith. Your /home lives dangerously.",
+              Edit:"Claude writes, you sign. The comfiest job in the office.",
+              Write:"Claude writes, you sign. The comfiest job in the office.",
+              Read:"You make Claude read and you nod along. Born manager."}[t]
+             || (t+" non-stop. Your only real consistency.")),
+    rhythm:(np,ph)=> np>=35?"3am, you and Claude, alone against the linter and common sense.":
+                     ph<=9?"Early bird. Your prompts smell of coffee and morning despair.":
+                           "Active by day. The bare minimum to look busy.",
+    model:m=> (m||"Your model")+", your right hand. And your left. And your brain.",
+    projects:"So many open projects. How many finished? We won't ask.",
+    recap:"Your Claude year, wrapped. Don't show this to a recruiter.",
   },
 };
 const J = JOKES[(DATA.meta && DATA.meta.lang) || "fr"];
@@ -193,7 +199,8 @@ add(()=>{ const c=card(2); c.appendChild(el("div","eyebrow",S.tokensEye));
 add(()=>{ const c=card(3); c.classList.add("top"); c.appendChild(el("div","icon","✦"));
   c.appendChild(el("div","eyebrow",S.modelEye));
   c.appendChild(el("div","name",shortModel(DATA.top_model)));
-  c.appendChild(rankList((DATA.models||[]).map(m=>[shortModel(m[0]),m[1]]))); return c; });
+  c.appendChild(rankList((DATA.models||[]).map(m=>[shortModel(m[0]),m[1]])));
+  c.appendChild(el("div","joke",J.model(shortModel(DATA.top_model)))); return c; });
 
 add(()=>{ const c=card(4); c.classList.add("top"); c.appendChild(el("div","icon","⚔"));
   c.appendChild(el("div","eyebrow",S.toolEye));
@@ -209,7 +216,8 @@ add(()=>{ const c=card(5); c.appendChild(chart(DATA.hours||new Array(24).fill(0)
 
 if((DATA.projects||[]).length){ add(()=>{ const c=card(2); c.classList.add("top");
   c.appendChild(el("div","icon","▚")); c.appendChild(el("div","eyebrow",S.projEye));
-  c.appendChild(rankList(DATA.projects)); return c; }); }
+  c.appendChild(rankList(DATA.projects));
+  c.appendChild(el("div","joke",J.projects)); return c; }); }
 
 add(()=>{ const c=card(4); c.classList.add("top"); c.appendChild(el("div","icon","❖"));
   c.appendChild(el("div","eyebrow",S.verdictEye));
@@ -227,6 +235,7 @@ add(()=>{ const c=card(3); c.appendChild(el("div","eyebrow",S.recapEye));
    ["modèle",shortModel(DATA.top_model)],["outil",DATA.top_tool||"-"],["profil",(DATA.persona&&DATA.persona.title)||"-"]]
     .forEach(([k,v])=>{ const row=el("div","row"); row.appendChild(el("span","k",k)); row.appendChild(el("span","v",v)); r.appendChild(row); });
   c.appendChild(r); c.appendChild(el("div","unit",S.wrap));
+  c.appendChild(el("div","joke",J.recap));
   c.appendChild(el("div","note",S.genBy)); return c; });
 
 // --- navigation ---
