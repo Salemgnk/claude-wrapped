@@ -6,6 +6,7 @@ claude_wrapped.en.html
 # Images exportées (--images) — données perso. / Exported images — personal data.
 images/
 slide_*.png
+*.mp4
 
 # Python
 __pycache__/

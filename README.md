@@ -41,10 +41,14 @@ python3 generate.py                 # FR  -> claude_wrapped.html
 python3 generate.py --lang en       # EN  -> claude_wrapped.en.html
 python3 generate.py --days 30       # 30 derniers jours
 python3 generate.py --images        # exporte 1 PNG par écran -> images/
+python3 generate.py --video         # vidéo diaporama (fondus) -> claude_wrapped.mp4
+python3 generate.py --video --video-music song.mp3   # + musique
 ```
 
-> **`--images`** capture chaque écran en PNG partageable (nécessite un Chrome/Chromium ;
-> aucune dépendance Python ajoutée). **Exécutable uniquement en CLI** (données locales).
+> **`--images`** capture chaque écran en PNG partageable ; **`--video`** les assemble en
+> **mp4** (fondus enchaînés, ~3 s/écran, musique optionnelle). Nécessite **Chrome/Chromium**
+> (et **ffmpeg** pour `--video`) ; aucune dépendance Python ajoutée, ignoré proprement si absent.
+> **Exécutable uniquement en CLI** (données locales).
 
 Puis ouvre le `.html` — navigation `←` `→`, `Espace`, clic ou swipe.
 
@@ -67,10 +71,14 @@ cd claude-wrapped
 python3 generate.py                 # FR  -> claude_wrapped.html
 python3 generate.py --lang en       # EN  -> claude_wrapped.en.html
 python3 generate.py --images        # export one PNG per screen -> images/
+python3 generate.py --video         # slideshow video (fades) -> claude_wrapped.mp4
+python3 generate.py --video --video-music song.mp3   # + music
 ```
 
-> **`--images`** captures each screen as a shareable PNG (needs Chrome/Chromium; no Python
-> dependency added). **CLI-only** (local data). Then open the `.html` and scroll.
+> **`--images`** captures each screen as a shareable PNG; **`--video`** stitches them into an
+> **mp4** (crossfades, ~3s/screen, optional music). Needs **Chrome/Chromium** (and **ffmpeg**
+> for `--video`); no Python dependency added, skipped gracefully if missing. **CLI-only** (local
+> data). Then open the `.html` and scroll.
 
 ## Crédits / Credits
 

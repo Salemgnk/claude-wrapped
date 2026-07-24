@@ -23,6 +23,7 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -321,25 +322,72 @@ def slide_count(chrome: str, url: str) -> int | None:
     return None
 
 
-def render_images(html_path: str, out_dir: str, width: int, height: int) -> None:
-    chrome = find_chrome()
-    if not chrome:
-        print("⚠️  --images needs Chrome/Chromium (none found on PATH). Skipping image export.")
-        print("   Install Chrome/Chromium, then re-run with --images.")
-        return
-    base = "file://" + os.path.abspath(html_path)
+def _render_screens(chrome: str, base: str, out_dir: str, width: int, height: int) -> int:
+    """Capture chaque écran en PNG (mode ?shot). Retourne le nombre d'écrans."""
     n = slide_count(chrome, base + "?shot=1") or 10
     os.makedirs(out_dir, exist_ok=True)
     for i in range(1, n + 1):
-        png = os.path.join(out_dir, f"slide_{i:02d}.png")
         _run(chrome, [
             "--force-device-scale-factor=2",
             f"--window-size={width},{height}",
             "--virtual-time-budget=3000",
-            f"--screenshot={png}",
+            f"--screenshot={os.path.join(out_dir, f'slide_{i:02d}.png')}",
             f"{base}?slide={i}&shot=1",
         ])
+    return n
+
+
+def render_images(html_path: str, out_dir: str, width: int, height: int) -> None:
+    chrome = find_chrome()
+    if not chrome:
+        print("⚠️  --images needs Chrome/Chromium (none found on PATH). Skipping image export.")
+        return
+    base = "file://" + os.path.abspath(html_path)
+    n = _render_screens(chrome, base, out_dir, width, height)
     print(f"🖼️  {n} images ({width}x{height} @2x) → {out_dir}/")
+
+
+def render_video(html_path: str, out_path: str, width: int, height: int,
+                 dur: float, music: str | None) -> None:
+    """Diaporama vidéo (fondus enchaînés) : écrans PNG (Chrome) assemblés par ffmpeg."""
+    chrome, ffmpeg = find_chrome(), shutil.which("ffmpeg")
+    if not chrome or not ffmpeg:
+        miss = " + ".join(m for m, ok in [("Chrome/Chromium", chrome), ("ffmpeg", ffmpeg)] if not ok)
+        print(f"⚠️  --video needs {miss} (not found on PATH). Skipping video export.")
+        return
+    base = "file://" + os.path.abspath(html_path)
+    tmp = tempfile.mkdtemp(prefix="claude-wrapped-video-")
+    try:
+        n = _render_screens(chrome, base, tmp, width, height)
+        T = 0.5  # durée du fondu enchaîné
+        inputs = []
+        for i in range(1, n + 1):
+            inputs += ["-loop", "1", "-framerate", "30", "-t", str(dur),
+                       "-i", os.path.join(tmp, f"slide_{i:02d}.png")]
+        has_music = bool(music) and os.path.exists(music or "")
+        if has_music:
+            inputs += ["-i", music]
+        if n == 1:
+            filt = "[0]format=yuv420p[v]"
+        else:
+            parts, prev = [], "[0]"
+            for k in range(1, n):
+                out = "[vx]" if k == n - 1 else f"[v{k}]"
+                parts.append(f"{prev}[{k}]xfade=transition=fade:duration={T}:offset={k*(dur-T):.3f}{out}")
+                prev = out
+            filt = ";".join(parts) + ";[vx]format=yuv420p[v]"
+        cmd = [ffmpeg, "-y", *inputs, "-filter_complex", filt, "-map", "[v]"]
+        if has_music:
+            cmd += ["-map", f"{n}:a", "-shortest", "-c:a", "aac"]
+        cmd += ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-r", "30", out_path]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        if r.returncode != 0:
+            print("⚠️  ffmpeg a échoué :", (r.stderr or "").strip().splitlines()[-1:] or "?")
+            return
+        print(f"🎬  vidéo ({n} écrans, ~{n * dur - (n - 1) * T:.0f}s"
+              f"{', musique' if has_music else ''}) → {out_path}")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 def main():
@@ -354,8 +402,13 @@ def main():
                     help="Also export one PNG per screen (needs Chrome/Chromium)")
     ap.add_argument("--images-dir", default=None,
                     help="Output folder for --images (default: <out folder>/images)")
-    ap.add_argument("--image-size", default="1200x800",
-                    help="WxH of exported images (default: 1200x800)")
+    ap.add_argument("--image-size", default="448x858",
+                    help="WxH of exported images/video (default: 448x858, fills the phone frame)")
+    ap.add_argument("--video", action="store_true",
+                    help="Also render a slideshow video (needs Chrome/Chromium + ffmpeg)")
+    ap.add_argument("--video-dur", type=float, default=3.0,
+                    help="Seconds per screen in --video (default: 3)")
+    ap.add_argument("--video-music", default=None, help="Optional audio file for --video")
     args = ap.parse_args()
 
     out = args.out or str(here / ("claude_wrapped.html" if args.lang == "fr"
@@ -377,13 +430,17 @@ def main():
     print(f"   Tokens: {t['tokens_total']:,} | Top model: {data['top_model']} | Top tool: {data['top_tool']}")
     print(f"   Persona: {data['persona']['title']}")
 
-    if args.images:
-        img_dir = args.images_dir or str(Path(out).resolve().parent / "images")
+    if args.images or args.video:
         try:
             w, h = (int(x) for x in args.image_size.lower().split("x"))
         except ValueError:
-            w, h = 1200, 800
-        render_images(out, img_dir, w, h)
+            w, h = 448, 858
+        if args.images:
+            img_dir = args.images_dir or str(Path(out).resolve().parent / "images")
+            render_images(out, img_dir, w, h)
+        if args.video:
+            render_video(out, str(Path(out).with_suffix(".mp4")), w, h,
+                         args.video_dur, args.video_music)
 
 
 if __name__ == "__main__":
