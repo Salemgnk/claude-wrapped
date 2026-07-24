@@ -110,11 +110,11 @@ const S = STRINGS[(DATA.meta && DATA.meta.lang) || "fr"];
 // --- punchlines sarcastiques ---
 const JOKES = {
   fr:{
-    prompts:n=> n<100?"Timide. Claude s'ennuyait ferme.":
-               n<500?"Le minimum pour dire « j'utilise l'IA » en soirée.":
-               n<1500?"Tu as un problème. Un très beau problème.":
-               n<3000?"À ce stade, Claude mérite un salaire et des congés.":
-                      "Tu ne codes plus, tu délègues ta vie. On ne juge pas. (On juge un peu.)",
+    prompts:n=> n<100?"Claude t'a à peine vu passer.":
+               n<500?"Le minimum syndical pour dire « j'utilise l'IA » en soirée.":
+               n<1500?"Tu as un problème. Un vrai. Et Claude n'est pas médecin.":
+               n<3000?"Tu ne codes plus, tu délègues ta vie. Et tu relis même pas.":
+                      "À ce stade, Claude mérite un salaire, des congés, et une part de ton diplôme.",
     tokens:n=> n>=1e9?"De quoi réécrire la bibliothèque d'Alexandrie. Tu as fait un CRUD.":
                n>=1e8?"Des millions de tokens plus tard : le bug est toujours là.":
                       "Économe. Ou alors tu lis vraiment les réponses ?",
@@ -128,11 +128,11 @@ const JOKES = {
                            "Productif en journée. Un vrai adulte, presque.",
   },
   en:{
-    prompts:n=> n<100?"Shy. Claude was bored stiff.":
+    prompts:n=> n<100?"Claude barely noticed you.":
                n<500?"The bare minimum to say 'I use AI' at parties.":
-               n<1500?"You have a problem. A beautiful problem.":
-               n<3000?"At this point, Claude deserves a salary and PTO.":
-                      "You don't code anymore, you delegate your life. No judgment. (A little judgment.)",
+               n<1500?"You have a problem. A real one. Claude isn't a doctor.":
+               n<3000?"You don't code anymore, you delegate your life. And you don't even read it.":
+                      "At this point, Claude deserves a salary, PTO, and a cut of your degree.",
     tokens:n=> n>=1e9?"Enough tokens to rewrite the Library of Alexandria. You built a CRUD.":
                n>=1e8?"Millions of tokens later: the bug is still there.":
                       "Frugal. Or do you actually read the answers?",
