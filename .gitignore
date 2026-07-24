@@ -1,0 +1,18 @@
+# Pages générées — contiennent TES vraies stats. / Generated pages — YOUR real stats.
+claude_wrapped.html
+claude_wrapped.en.html
+*wrapped*.html
+
+# Images exportées (--images) — données perso. / Exported images — personal data.
+images/
+slide_*.png
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
