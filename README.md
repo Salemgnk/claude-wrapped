@@ -35,6 +35,14 @@ et la page ne contient **que des chiffres agrégés** (jamais le contenu des con
 Aucune dépendance — juste **Python 3.8+**.
 
 ```bash
+pip install wrapped-claude
+wrapped-claude                      # FR  -> claude_wrapped.html  (commande installée)
+wrapped-claude --video --lang en    # toutes les options, ex.
+```
+
+Ou depuis les sources — `python3 generate.py` équivaut à la commande `wrapped-claude` :
+
+```bash
 git clone git@github.com:Salemgnk/claude-wrapped.git
 cd claude-wrapped
 python3 generate.py                 # FR  -> claude_wrapped.html
@@ -64,6 +72,14 @@ look. Nothing is sent anywhere: everything runs locally and the page contains
 ### Install & usage
 
 No dependencies — just **Python 3.8+**.
+
+```bash
+pip install wrapped-claude
+wrapped-claude                      # FR  -> claude_wrapped.html  (installed command)
+wrapped-claude --video --lang en    # all options, e.g.
+```
+
+Or from source — `python3 generate.py` is equivalent to the `wrapped-claude` command:
 
 ```bash
 git clone git@github.com:Salemgnk/claude-wrapped.git

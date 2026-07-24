@@ -17,3 +17,8 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Build / packaging
+dist/
+build/
+*.egg-info/
